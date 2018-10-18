@@ -2,15 +2,13 @@ package hackit.com.tutorial
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import com.mikepenz.materialdrawer.AccountHeader
 import com.mikepenz.materialdrawer.AccountHeaderBuilder
 import com.mikepenz.materialdrawer.DrawerBuilder
-import com.mikepenz.materialdrawer.model.ProfileDrawerItem
 import com.mikepenz.materialdrawer.model.interfaces.Nameable
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,31 +19,43 @@ class MainActivity : AppCompatActivity() {
         val toolbar = findViewById<View>(R.id.toolbar) as Toolbar
         setSupportActionBar(toolbar)
         supportActionBar.setTitle("Tutorial")
-        var header =  AccountHeaderBuilder()
+        var header = AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.header)
                 .addProfiles(
-                        ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(resources.getDrawable(R.drawable.profile))
+                        // ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(resources.getDrawable(R.drawable.profile))
                 )
                 .withOnAccountHeaderListener(AccountHeader.OnAccountHeaderListener { view, profile, currentProfile -> false })
                 .build()
         //Create the drawer
-         DrawerBuilder()
+        DrawerBuilder()
                 .withActivity(this)
                 .withToolbar(toolbar).
-                 withAccountHeader(header)
+                withAccountHeader(header)
                 .inflateMenu(R.menu.example_menu)
                 .withOnDrawerItemClickListener { view, position, drawerItem ->
                     if (drawerItem is Nameable<*>) {
-                        Toast.makeText(this@MainActivity, (drawerItem as Nameable<*>).name.getText(this@MainActivity), Toast.LENGTH_SHORT).show()
+                        when ((drawerItem as Nameable<*>).name.text) {
+                            (getString(R.string.Movies)) ->
+                                setLayout(MoviesFragment())
+                            (getString(R.string.top_trends)) ->
+                                setLayout(TopTrendsFragment())
+                            (getString(R.string.tv_shows)) ->
+                                setLayout(TvShowsFragment())
+                            (getString(R.string.favorites)) ->
+                                setLayout(FavoritesFragment())
+                        }
                     }
                     false
                 }.build()
-        createProfile()
-
+        setLayout(MoviesFragment())
     }
 
-    fun createProfile() {
+    private fun setLayout(fragment: Fragment) {
+        val ft = supportFragmentManager.beginTransaction()
+        ft.add(R.id.frame_container, fragment)
+        ft.addToBackStack(null)
+        ft.commit()
     }
 
 }
